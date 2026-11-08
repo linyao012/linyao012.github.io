@@ -1,0 +1,415 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>王子健 · AIGC编导 / 剪辑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0c0e;
+  --ink:#ece9e2;
+  --ink-dim:#9a968c;
+  --accent:#e8b45a;
+  --accent-soft:rgba(232,180,90,.14);
+  --line:rgba(236,233,226,.1);
+  --serif:'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+  --sans:'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:300;line-height:1.8;overflow-x:hidden}
+::selection{background:var(--accent);color:#111}
+
+/* 胶片颗粒 */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:99;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- 导航 ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:22px 5vw;transition:background .4s,backdrop-filter .4s}
+nav.scrolled{background:rgba(12,12,14,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+nav .logo{font-family:var(--serif);font-weight:700;font-size:18px;letter-spacing:.35em;color:var(--ink);text-decoration:none}
+nav .logo em{color:var(--accent);font-style:normal}
+nav ul{display:flex;gap:34px;list-style:none}
+nav ul a{color:var(--ink-dim);text-decoration:none;font-size:13px;letter-spacing:.18em;transition:color .3s}
+nav ul a:hover{color:var(--accent)}
+@media(max-width:760px){nav ul{display:none}}
+
+/* ---------- Hero ---------- */
+header{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=cinematic%20film%20editing%20studio%20at%20night%2C%20large%20monitor%20glowing%20with%20video%20editing%20timeline%2C%20dark%20moody%20atmosphere%2C%20warm%20amber%20practical%20lights%2C%20shallow%20depth%20of%20field%2C%20photorealistic%2C%20no%20people%2C%20no%20text&image_size=landscape_16_9') center/cover no-repeat;transform:scale(1.06);animation:heroZoom 8s ease-out forwards}
+@keyframes heroZoom{to{transform:scale(1)}}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to top, var(--bg) 4%, rgba(12,12,14,.55) 40%, rgba(12,12,14,.35) 100%)}
+.hero-inner{position:relative;z-index:2;padding:0 5vw 11vh;width:100%}
+.hero-kicker{display:flex;align-items:center;gap:14px;color:var(--accent);font-size:13px;letter-spacing:.4em;margin-bottom:26px;opacity:0;animation:fadeUp 1s .3s ease forwards}
+.hero-kicker::before{content:'';width:44px;height:1px;background:var(--accent)}
+h1{font-family:var(--serif);font-weight:900;font-size:clamp(56px,11vw,148px);line-height:1.05;letter-spacing:.08em;opacity:0;animation:fadeUp 1.1s .5s ease forwards}
+h1 span{color:var(--accent)}
+.hero-role{margin-top:18px;font-size:clamp(16px,2.2vw,24px);letter-spacing:.3em;color:var(--ink-dim);opacity:0;animation:fadeUp 1.1s .75s ease forwards}
+.hero-tags{margin-top:38px;display:flex;flex-wrap:wrap;gap:12px;opacity:0;animation:fadeUp 1.1s .95s ease forwards}
+.hero-tags span{border:1px solid rgba(232,180,90,.4);color:var(--accent);font-size:12.5px;letter-spacing:.14em;padding:7px 16px;border-radius:100px;background:rgba(12,12,14,.35);backdrop-filter:blur(6px)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.scroll-hint{position:absolute;bottom:34px;right:5vw;z-index:2;writing-mode:vertical-rl;font-size:11px;letter-spacing:.4em;color:var(--ink-dim);display:flex;align-items:center;gap:12px}
+.scroll-hint::after{content:'';width:1px;height:56px;background:linear-gradient(var(--accent),transparent);animation:drip 2s infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---------- 通用版块 ---------- */
+section{padding:110px 5vw;max-width:1240px;margin:0 auto}
+.sec-head{display:flex;align-items:baseline;gap:22px;margin-bottom:64px}
+.sec-num{font-family:var(--serif);color:var(--accent);font-size:15px;letter-spacing:.2em}
+.sec-title{font-family:var(--serif);font-weight:700;font-size:clamp(28px,4.4vw,46px);letter-spacing:.12em}
+.sec-title::after{content:'';display:block;width:56px;height:2px;background:var(--accent);margin-top:14px}
+.sec-note{color:var(--ink-dim);font-size:13px;letter-spacing:.1em;margin-left:auto;padding-bottom:6px}
+
+/* 滚动显现 */
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- 核心优势 ---------- */
+.adv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line)}
+.adv{padding:44px 34px 44px 0;border-bottom:1px solid var(--line)}
+.adv+.adv{border-left:1px solid var(--line);padding-left:34px}
+.adv .idx{font-family:var(--serif);font-size:44px;color:var(--accent);opacity:.55;font-weight:700;line-height:1}
+.adv h3{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:.1em;margin:20px 0 14px}
+.adv p{font-size:14.5px;color:var(--ink-dim);line-height:1.9}
+@media(max-width:860px){.adv-grid{grid-template-columns:1fr}.adv+.adv{border-left:none;padding-left:0}}
+
+/* ---------- 大数字 ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;text-align:left;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:56px 0}
+.stat b{display:block;font-family:var(--serif);font-weight:900;font-size:clamp(38px,5vw,64px);color:var(--accent);line-height:1.1}
+.stat b small{font-size:.45em;font-weight:400;margin-left:2px}
+.stat span{font-size:13px;color:var(--ink-dim);letter-spacing:.1em}
+@media(max-width:860px){.stats{grid-template-columns:repeat(2,1fr);gap:32px}}
+
+/* ---------- 经历时间线 ---------- */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:var(--line)}
+.tl-item{position:relative;padding-bottom:64px}
+.tl-item:last-child{padding-bottom:0}
+.tl-item::before{content:'';position:absolute;left:-34px;top:10px;width:13px;height:13px;border-radius:50%;border:2px solid var(--accent);background:var(--bg)}
+.tl-item.current::before{background:var(--accent);box-shadow:0 0 0 6px var(--accent-soft)}
+.tl-date{font-size:12.5px;letter-spacing:.22em;color:var(--accent);margin-bottom:8px}
+.tl-role{font-family:var(--serif);font-size:clamp(20px,3vw,27px);font-weight:700;letter-spacing:.06em}
+.tl-org{color:var(--ink-dim);font-size:14px;margin:6px 0 18px;letter-spacing:.05em}
+.tl-item ul{list-style:none}
+.tl-item li{position:relative;padding-left:20px;margin-bottom:10px;font-size:14.5px;color:#c9c5bb;max-width:760px}
+.tl-item li::before{content:'';position:absolute;left:0;top:.85em;width:8px;height:1px;background:var(--accent)}
+.tl-item li b{color:var(--ink);font-weight:500}
+
+/* ---------- 技能 ---------- */
+.skills{display:grid;grid-template-columns:1fr 1fr;gap:38px 64px}
+.skill .row{display:flex;justify-content:space-between;font-size:14px;letter-spacing:.08em;margin-bottom:12px}
+.skill .row i{font-style:normal;color:var(--accent);font-family:var(--serif)}
+.bar{height:3px;background:rgba(236,233,226,.09);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),#f5d8a0);transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
+@media(max-width:760px){.skills{grid-template-columns:1fr}}
+
+/* ---------- 作品视频廊 ---------- */
+.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+@media(max-width:980px){.vgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.vgrid{grid-template-columns:1fr}}
+.vcard{position:relative;cursor:pointer;border:1px solid var(--line);background:#121214;transition:transform .4s cubic-bezier(.2,.7,.2,1),border-color .4s;overflow:hidden}
+.vcard:hover{transform:translateY(-6px);border-color:rgba(232,180,90,.45)}
+.vcover{position:relative;aspect-ratio:16/9;overflow:hidden;background:#000}
+.vcover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.2,.7,.2,1);filter:saturate(.92)}
+.vcard:hover .vcover img{transform:scale(1.05)}
+.vcover::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,12,.55),transparent 45%)}
+.vdur{position:absolute;right:10px;bottom:10px;z-index:2;font-size:11px;letter-spacing:.08em;background:rgba(10,10,12,.72);border:1px solid rgba(236,233,226,.18);padding:3px 9px;border-radius:100px;color:var(--ink)}
+.vplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;width:52px;height:52px;border-radius:50%;border:1px solid rgba(236,233,226,.5);background:rgba(10,10,12,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;transition:all .35s;opacity:.85}
+.vplay::after{content:'';border-style:solid;border-width:8px 0 8px 14px;border-color:transparent transparent transparent var(--ink);margin-left:3px}
+.vcard:hover .vplay{background:var(--accent);border-color:var(--accent);transform:translate(-50%,-50%) scale(1.08)}
+.vcard:hover .vplay::after{border-left-color:#141210}
+.vbody{padding:18px 20px 20px}
+.vtag{display:inline-block;font-size:11px;letter-spacing:.14em;color:var(--accent);border:1px solid rgba(232,180,90,.35);padding:3px 10px;border-radius:100px;margin-bottom:10px}
+.vtag.role-director{color:#8fd0ff;border-color:rgba(143,208,255,.35)}
+.vtag.role-camera{color:#b4e59a;border-color:rgba(180,229,154,.3)}
+.vbody h4{font-family:var(--serif);font-size:16.5px;font-weight:700;letter-spacing:.05em;line-height:1.5}
+.vbody p{font-size:12.5px;color:var(--ink-dim);margin-top:6px;line-height:1.7}
+.vaward{margin-top:10px;font-size:12px;color:var(--accent);letter-spacing:.06em}
+.vaward::before{content:'◆ ';font-size:10px}
+
+/* ---------- 播放弹窗 ---------- */
+.modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(8,8,10,.92);backdrop-filter:blur(8px)}
+.modal.open{display:flex}
+.modal-box{width:min(1080px,92vw)}
+.modal-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.modal-title{font-family:var(--serif);font-size:18px;letter-spacing:.08em}
+.modal-close{background:none;border:1px solid rgba(236,233,226,.3);color:var(--ink);width:38px;height:38px;border-radius:50%;font-size:16px;cursor:pointer;transition:all .3s}
+.modal-close:hover{border-color:var(--accent);color:var(--accent);transform:rotate(90deg)}
+.modal video{width:100%;max-height:74vh;background:#000;display:block}
+
+/* ---------- 联系 ---------- */
+.contact{position:relative;text-align:center;padding:150px 5vw}
+.contact .bg{position:absolute;inset:0;background:url('https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=professional%20cinema%20camera%20on%20tripod%20silhouette%20against%20vast%20Pamir%20plateau%20mountain%20landscape%20at%20golden%20hour%2C%20dramatic%20sky%2C%20cinematic%20color%20grade%2C%20photorealistic%2C%20no%20text&image_size=landscape_16_9') center/cover fixed no-repeat;opacity:.22}
+.contact .inner{position:relative;z-index:2}
+.contact h2{font-family:var(--serif);font-weight:900;font-size:clamp(34px,6vw,72px);letter-spacing:.12em;line-height:1.3}
+.contact h2 em{font-style:normal;color:var(--accent)}
+.contact p{color:var(--ink-dim);margin:22px auto 46px;max-width:520px;font-size:15px}
+.cta{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:18px}
+.btn{display:inline-block;padding:16px 42px;font-size:14px;letter-spacing:.22em;text-decoration:none;transition:all .35s}
+.btn-solid{background:var(--accent);color:#141210;font-weight:500}
+.btn-solid:hover{background:#f5d8a0;transform:translateY(-3px)}
+.btn-ghost{border:1px solid rgba(236,233,226,.35);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px)}
+footer{text-align:center;padding:36px 5vw;color:var(--ink-dim);font-size:12px;letter-spacing:.2em;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a class="logo" href="#top">王子健<em> · </em>WANG ZIJIAN</a>
+  <ul>
+    <li><a href="#adv">优势</a></li>
+    <li><a href="#exp">经历</a></li>
+    <li><a href="#skills">技能</a></li>
+    <li><a href="#works">作品</a></li>
+    <li><a href="#contact">联系</a></li>
+  </ul>
+</nav>
+
+<header id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="hero-kicker">AIGC DIRECTOR · EDITOR · PORTFOLIO</div>
+    <h1>王子<span>健</span></h1>
+    <div class="hero-role">AIGC 编导 ／ 剪辑</div>
+    <div class="hero-tags">
+      <span>30+ 部 AI 漫剧后期经验</span>
+      <span>2.67 亿人次直播项目摄像</span>
+      <span>新闻学本科 · 编导拍摄剪辑全链路</span>
+    </div>
+  </div>
+  <div class="scroll-hint">SCROLL</div>
+</header>
+
+<!-- 大数字 -->
+<section style="padding-bottom:0">
+  <div class="stats reveal">
+    <div class="stat"><b><span class="count" data-to="30">0</span><small>+</small></b><span>AI 漫剧 / 融合剧项目</span></div>
+    <div class="stat"><b><span class="count" data-to="267">0</span><small>百万</small></b><span>直播项目累计观看人次</span></div>
+    <div class="stat"><b><span class="count" data-to="6">0</span><small>个</small></b><span>峰值并行项目 · 按时交付</span></div>
+    <div class="stat"><b><span class="count" data-to="235">0</span><small>部</small></b><span>塞罕坝访谈视频产出</span></div>
+  </div>
+</section>
+
+<!-- 核心优势 -->
+<section id="adv">
+  <div class="sec-head reveal"><span class="sec-num">01</span><h2 class="sec-title">核心优势</h2></div>
+  <div class="adv-grid">
+    <div class="adv reveal">
+      <div class="idx">壹</div>
+      <h3>AIGC 全流程制作</h3>
+      <p>25+ 部 AI 漫剧 / 融合剧后期经验，主导建立《剪辑红线自查细则》标准化交付体系；剪辑熟练，具备生成能力，曾独立部署本地视频生成工作流。</p>
+    </div>
+    <div class="adv reveal" style="transition-delay:.12s">
+      <div class="idx">贰</div>
+      <h3>大型项目摄像</h3>
+      <p>前央视主持人白燕升团队核心摄像，帕米尔高原 7 天直播零失误，项目累计观看 2.67 亿人次，话题阅读量 5 亿。</p>
+    </div>
+    <div class="adv reveal" style="transition-delay:.24s">
+      <div class="idx">叁</div>
+      <h3>复合传媒能力</h3>
+      <p>新闻学科班出身，能力覆盖编导、拍摄、剪辑、运营全链路，可在多类型岗位间快速适配。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 工作经历 -->
+<section id="exp">
+  <div class="sec-head reveal"><span class="sec-num">02</span><h2 class="sec-title">项目与工作经历</h2></div>
+  <div class="tl">
+    <div class="tl-item current reveal">
+      <div class="tl-date">2025.07 — 至今</div>
+      <div class="tl-role">后期制作 / 质量控制协调 · AI 短剧方向</div>
+      <div class="tl-org">武汉睿渊网络科技有限公司（炳午影视）</div>
+      <ul>
+        <li>参与制作 <b>30+ 部 AI 漫剧 / 融合剧</b>项目，独立负责多集剪辑全流程</li>
+        <li>峰值同时管理 <b>6 个项目、12 个项目文件</b>，统一网盘协作入口，多项目并行按时交片定稿</li>
+        <li>创建<b>《剪辑红线自查细则》《漫剧成片交付要求》</b>，建立标准化交付流程与互审制度，在 8-10 人后期团队中担任组长助理</li>
+        <li>在剪辑、制作、后期、协作群 4 个团队间协调文件传递与进度同步，与 15+ 位同事高效协作；负责清水版 / 纯净版 / 无字幕 / srt 等多版本导出，满足各平台合规要求</li>
+      </ul>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date">2025.05 — 2025.08</div>
+      <div class="tl-role">《戏聚昆仑 · 擂响中华》｜策划 / 摄像</div>
+      <div class="tl-org">前央视主持人白燕升团队 · 大型戏曲直播项目</div>
+      <ul>
+        <li>参与项目主题策划与流程设计，结合传统戏曲与现代传播打造跨场景直播</li>
+        <li>任核心摄像兼现场编导助理，克服帕米尔高原高海拔环境，<b>7 天直播画面零失误</b>，完成 13 个剧种、14 位名家拍摄</li>
+        <li>助力活动获 <b>2.67 亿人次在线观看、5 亿话题阅读量</b>；完成 100 期《燕升访谈》及 3 支个人 MV 拍摄，全网播放量超千万</li>
+      </ul>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date">2025 · 项目制</div>
+      <div class="tl-role">「燕塞布衣」非遗传媒传播项目｜内容策划 / 摄像</div>
+      <div class="tl-org">聚焦「威县土布」非遗传播</div>
+      <ul>
+        <li>独立编导宣传短片<b>《经纬》</b>，获项目组「最佳传播案例」</li>
+        <li>协助拍摄 13 篇新闻通讯素材，被新华社等多家主流传媒平台采用</li>
+      </ul>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date">2024.02 — 2024.04</div>
+      <div class="tl-role">编导实习生</div>
+      <div class="tl-org">四开花园网络科技（广州）</div>
+      <ul>
+        <li>全程参与百万级预算<b>「苏浙地区 8K VR 拍摄」</b>项目：拍摄计划制定、现场场记、后期对接与成片审核</li>
+        <li>助力拍摄周期缩短 <b>15%</b>，素材利用率提升至 <b>90%</b></li>
+      </ul>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date">2023.03 — 2023.12 · 在校实习</div>
+      <div class="tl-role">记者 / 摄像 / 剪辑</div>
+      <div class="tl-org">口述塞罕坝史访谈 · 教育部「童语同音」计划</div>
+      <ul>
+        <li>带领小组采访拍摄塞罕坝三代护林人，累计产出文字稿 <b>236 份</b>、访谈视频 <b>235 部</b></li>
+        <li>「童语同音」师资培训：4 天产出 4 条短视频及 800 余张照片，全部通过项目审核</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 教育 -->
+<section id="edu" style="padding-top:0">
+  <div class="sec-head reveal"><span class="sec-num">03</span><h2 class="sec-title">教育经历</h2></div>
+  <div class="adv-grid" style="grid-template-columns:1fr 1fr">
+    <div class="adv reveal" style="border-bottom:none;padding-bottom:0">
+      <h3>河北民族师范学院 · 新闻学（本科）</h3>
+      <p>2020.09 — 2024.07 ｜ GPA 3.81 / 5.0<br>主修：电视摄像与画面编辑、微视频创作实训（新媒体方向）、广告创意与策划、新媒体文案创作、新闻摄影</p>
+    </div>
+    <div class="adv reveal" style="border-bottom:none;padding-bottom:0;transition-delay:.12s">
+      <h3>校园实践</h3>
+      <p>校园融媒体中心副主席，统筹官方新媒体内容策划与视频产出；校园电视台干事；院学生会实验室管理部部长，熟悉常见相机机型及灯光、收音设备的调度与使用。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 技能 -->
+<section id="skills" style="padding-top:0">
+  <div class="sec-head reveal"><span class="sec-num">04</span><h2 class="sec-title">专业技能</h2></div>
+  <div class="skills">
+    <div class="skill reveal"><div class="row">AI 视频生成工作流<i>精通</i></div><div class="bar"><i data-w="95"></i></div></div>
+    <div class="skill reveal"><div class="row">Premiere Pro<i>精通</i></div><div class="bar"><i data-w="95"></i></div></div>
+    <div class="skill reveal"><div class="row">DaVinci Resolve<i>熟练</i></div><div class="bar"><i data-w="88"></i></div></div>
+    <div class="skill reveal"><div class="row">After Effects<i>熟练</i></div><div class="bar"><i data-w="85"></i></div></div>
+    <div class="skill reveal"><div class="row">摄影 / 摄像<i>精通</i></div><div class="bar"><i data-w="93"></i></div></div>
+    <div class="skill reveal"><div class="row">剧本 / 脚本创作<i>熟练</i></div><div class="bar"><i data-w="86"></i></div></div>
+  </div>
+</section>
+
+<!-- 作品 -->
+<section id="works" style="padding-top:0">
+  <div class="sec-head reveal"><span class="sec-num">05</span><h2 class="sec-title">作品</h2><span class="sec-note">点击卡片播放</span></div>
+  <div class="vgrid">
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v8.mp4" data-title="纪录片《法入人心》">
+      <div class="vcover"><img src="covers/v8.jpg" alt="法入人心"><span class="vdur">4′44″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag role-director">导演 · 实拍纪录片</span><h4>《法入人心》</h4><p>法治题材纪录片，聚焦基层法院特邀调解员群像</p><div class="vaward">承德市法制视频征集「一等奖」</div></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v9.mp4" data-title="非遗纪录片《经纬》" style="transition-delay:.08s">
+      <div class="vcover"><img src="covers/v9.jpg" alt="经纬"><span class="vdur">1′55″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag role-director">编导 · 非遗纪录片</span><h4>《经纬》</h4><p>「威县土布」非遗传播宣传短片</p><div class="vaward">项目组「最佳传播案例」</div></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v10.mp4" data-title="非遗传播项目《燕塞布衣》" style="transition-delay:.16s">
+      <div class="vcover"><img src="covers/v10.jpg" alt="燕塞布衣"><span class="vdur">9′07″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag role-camera">内容策划 / 摄像</span><h4>《燕塞布衣》非遗传播项目</h4><p>素材获新华社等多家主流传媒平台采用</p></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v1.mp4" data-title="AI短剧 · 月下村谜案">
+      <div class="vcover"><img src="covers/v1.jpg" alt="月下村谜案"><span class="vdur">1′50″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag">剪辑 · AI 短剧</span><h4>古装悬疑 · 月下村谜案</h4><p>村落奇案题材，AI 生成画面 + 全流程后期</p></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v2.mp4" data-title="AI短剧 · 玄清庙神像" style="transition-delay:.08s">
+      <div class="vcover"><img src="covers/v2.jpg" alt="玄清庙神像"><span class="vdur">1′14″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag">剪辑 · AI 短剧</span><h4>古装玄幻 · 玄清庙神像</h4><p>民俗灵异题材，灵体特效与氛围营造</p></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v3.mp4" data-title="AI短剧 · 神明复仇" style="transition-delay:.16s">
+      <div class="vcover"><img src="covers/v3.jpg" alt="神明复仇"><span class="vdur">1′46″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag">剪辑 · AI 短剧</span><h4>古装玄幻 · 神明复仇</h4><p>大场面群像调度，玄幻复仇题材</p></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v4.mp4" data-title="AI短剧 · 火星信号">
+      <div class="vcover"><img src="covers/v4.jpg" alt="火星信号"><span class="vdur">2′21″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag">剪辑 · AI 短剧</span><h4>科幻机甲 · 火星信号</h4><p>太空科幻题材，机甲与 HUD 视效呈现</p></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v5.mp4" data-title="AI融合剧 · 萌宠短剧" style="transition-delay:.08s">
+      <div class="vcover"><img src="covers/v5.jpg" alt="萌宠短剧"><span class="vdur">1′42″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag">剪辑 · AI 融合剧</span><h4>萌宠竖屏短剧</h4><p>真人实拍 + AI 角色融合，竖屏平台向</p></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v6.mp4" data-title="AI短剧 · 乡村金榜" style="transition-delay:.16s">
+      <div class="vcover"><img src="covers/v6.jpg" alt="乡村金榜"><span class="vdur">59″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag">剪辑 · AI 短剧</span><h4>年代情感 · 乡村金榜</h4><p>乡村年代题材，竖屏短剧节奏把控</p></div>
+    </div>
+    <div class="vcard reveal" data-src="https://github.com/linyao012/linyao012.github.io/releases/download/v1/v7.mp4" data-title="微电影《猫语》试剪">
+      <div class="vcover"><img src="covers/v7.jpg" alt="猫语"><span class="vdur">2′32″</span><span class="vplay"></span></div>
+      <div class="vbody"><span class="vtag role-director">剪辑 · 实拍微电影</span><h4>《猫语》试剪片段</h4><p>悬疑向实拍短片，叙事节奏试剪</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 播放弹窗 -->
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div class="modal-head"><span class="modal-title" id="modalTitle"></span><button class="modal-close" id="modalClose">✕</button></div>
+    <video id="player" controls playsinline></video>
+  </div>
+</div>
+
+<!-- 联系 -->
+<section class="contact" id="contact" style="max-width:none">
+  <div class="bg"></div>
+  <div class="inner reveal">
+    <h2>期待与您<br>共创<em>下一部作品</em></h2>
+    <p>性格开朗、乐于沟通，具备跨团队协调经验；能适应高压下多项目并行的节奏，持续学习剪辑、拍摄与 AI 应用技术。</p>
+    <div class="cta">
+      <a class="btn btn-solid" href="tel:15131368071">电话 · 151 3136 8071</a>
+      <a class="btn btn-ghost" href="mailto:wy205873481@163.com">邮箱 · wy205873481@163.com</a>
+    </div>
+  </div>
+</section>
+
+<footer>王子健 · AIGC 编导 / 剪辑 · 生于 2002.08 · 现居武汉</footer>
+
+<script>
+/* 导航滚动态 */
+const nav = document.getElementById('nav');
+addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 40));
+
+/* 滚动显现 */
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  e.target.classList.add('in');
+  e.target.querySelectorAll('.count').forEach(el => {
+    if (el.dataset.done) return; el.dataset.done = 1;
+    const to = +el.dataset.to, t0 = performance.now(), dur = 1600;
+    (function tick(t){
+      const p = Math.min((t - t0) / dur, 1), ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * ease);
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  });
+  e.target.querySelectorAll('.bar i').forEach(b => b.style.width = b.dataset.w + '%');
+}), {threshold: .18});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/* 视频弹窗 */
+const modal = document.getElementById('modal'),
+      player = document.getElementById('player'),
+      modalTitle = document.getElementById('modalTitle');
+document.querySelectorAll('.vcard').forEach(c => c.addEventListener('click', () => {
+  player.src = encodeURI(c.dataset.src);
+  modalTitle.textContent = c.dataset.title;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}));
+function closeModal(){
+  modal.classList.remove('open');
+  player.pause(); player.removeAttribute('src'); player.load();
+  document.body.style.overflow = '';
+}
+document.getElementById('modalClose').addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
